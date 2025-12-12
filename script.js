@@ -5,7 +5,11 @@ Array.prototype.random = function () {
 const gameBoard = (function () {
   const boardArray = [];
 
-  return { boardArray };
+  function addSymbol(index, symbol) {
+    boardArray[index] = symbol;
+  }
+
+  return { boardArray, addSymbol };
 })();
 
 function createPlayer(name, symbol) {
@@ -24,11 +28,11 @@ const gameDisplay = (function () {
     turnInfoDiv.textContent = `${playerName}, it's your turn.`;
   }
 
-  function placeSymbol(cell, symbol) {
+  function displaySymbol(cell, symbol) {
     cell.textContent = symbol;
   }
 
-  return { announceSymbols, announceTurn, placeSymbol };
+  return { announceSymbols, announceTurn, displaySymbol };
 })();
 
 const game = (function () {
@@ -64,14 +68,9 @@ const game = (function () {
   }
 
   function handleMove(cell) {
-    addSymbolToBoardArray(cell.id);
-    gameDisplay.placeSymbol(cell, currentPlayer.symbol);
+    gameBoard.addSymbol(cell.id, currentPlayer.symbol)
+    gameDisplay.displaySymbol(cell, currentPlayer.symbol);
     currentPlayer = switchTurn();
-  }
-
-  function addSymbolToBoardArray(index) {
-    gameBoard.boardArray[index] = currentPlayer.symbol;
-    console.log(gameBoard.boardArray);
   }
 
   const switchTurn = () => (currentPlayer === player1 ? player2 : player1);
