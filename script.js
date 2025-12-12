@@ -37,14 +37,9 @@ const game = (function () {
   const assignOtherSymbol = (symbol) => (symbol === "X" ? "O" : "X");
   const playButton = document.querySelector("#play")
   playButton.addEventListener("click", play)
-  const chooseRandomPlayer = () => [player1, player2].random()
-  let currentPlayer = chooseRandomPlayer()
+  let currentPlayer;
 
-  function assignRandomSymbol() {
-    const symbols = ["X", "O"];
-    return symbols.random();
-    // refactor via arrow func
-  }
+  const assignRandomSymbol = () => ["X", "O"].random();
 
   function assignSymbols() {
     player1.symbol = assignRandomSymbol();
@@ -53,11 +48,14 @@ const game = (function () {
 
   function play() {
     assignSymbols()
+    currentPlayer = chooseRandomPlayer()
     gameDisplay.announceSymbols(player1.symbol, player2.symbol)
     gameDisplay.announceTurn(currentPlayer.name)
     const cells = document.querySelectorAll(".cell")
     addListenersToCells(cells)
   }
+
+  const chooseRandomPlayer = () => [player1, player2].random()
 
   function addListenersToCells(cells, symbol) {
     cells.forEach(cell => cell.addEventListener("click", () => handleMove(cell), { once: true }))
