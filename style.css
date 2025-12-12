@@ -4,14 +4,22 @@
 }
 
 .container {
-  height: 80vh;
+  width: 300px;
+  margin: 50px auto;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 50px;
 }
 
 .board {
+  width: 100%;
   display: grid;
-  grid-template-columns: 100px 100px 100px;
-  grid-template-rows: 100px 100px 100px;
+  grid-template: 100px 100px 100px / 100px 100px 100px;
+}
+
+#play {
+  width: 100%;
+  padding: 10px;
 }
