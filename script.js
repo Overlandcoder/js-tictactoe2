@@ -9,10 +9,18 @@ const gameBoard = (function () {
     boardArray[index] = symbol;
   }
 
-  const isBoardFull = () => boardArray.length === 9;
+  const isBoardFull = () => boardArray.length === 9 && noEmptyCells();
   const symbolAt = index => boardArray.at(index);
+  const showBoard = () => boardArray;
 
-  return { boardArray, addSymbol, isBoardFull, symbolAt };
+  function noEmptyCells() {
+    for (let i = 0; i <= 8; i++) {
+      if (boardArray[i] !== "X" && boardArray[i] !== "O") return false;
+    }
+    return true;
+  }
+
+  return { showBoard, addSymbol, isBoardFull, symbolAt };
 })();
 
 function createPlayer(name, symbol) {
@@ -20,6 +28,7 @@ function createPlayer(name, symbol) {
 }
 
 const gameDisplay = (function () {
+  const cells = document.querySelectorAll(".cell");
   const gameStatusDiv = document.querySelector("#game-status");
 
   function announceSymbols(player1Symbol, player2Symbol) {
@@ -40,7 +49,21 @@ const gameDisplay = (function () {
     gameStatusDiv.textContent = `${playerName} has won!`;
   }
 
-  return { announceSymbols, announceTurn, displaySymbol, announceWinner };
+  function announceTie() {
+    gameStatusDiv.textContent = "Tie game.";
+  }
+
+  function addListenersToCells() {
+    cells.forEach((cell) =>
+      cell.addEventListener("click", () => game.handleMove(cell), { once: true })
+    );
+  }
+
+  function disableCells() {
+    cells.forEach(cell => cell.disabled = true)
+  }
+
+  return { cells, addListenersToCells, announceSymbols, announceTurn, displaySymbol, announceWinner, announceTie, disableCells };
 })();
 
 const game = (function () {
@@ -73,22 +96,18 @@ const game = (function () {
     currentPlayer = chooseRandomPlayer();
     gameDisplay.announceSymbols(player1.symbol, player2.symbol);
     gameDisplay.announceTurn(currentPlayer.name);
-    const cells = document.querySelectorAll(".cell");
-    addListenersToCells(cells);
+    gameDisplay.addListenersToCells();
   }
 
   const chooseRandomPlayer = () => [player1, player2].random();
 
-  function addListenersToCells(cells, symbol) {
-    cells.forEach((cell) =>
-      cell.addEventListener("click", () => handleMove(cell), { once: true })
-    );
-  }
-
   function handleMove(cell) {
     gameBoard.addSymbol(cell.id, currentPlayer.symbol)
     gameDisplay.displaySymbol(cell, currentPlayer.symbol);
-    if (isGameOver()) return;
+    if (isGameOver()) {
+      gameDisplay.disableCells()
+      return;
+    }
     currentPlayer = switchTurn();
     gameDisplay.announceTurn(currentPlayer.name);
   }
@@ -96,6 +115,9 @@ const game = (function () {
   function isGameOver() {
     if (isGameWon()) {
       gameDisplay.announceWinner(currentPlayer.name)
+      return true;
+    } else if (gameBoard.isBoardFull()) {
+      gameDisplay.announceTie();
       return true;
     }
   }
@@ -108,5 +130,7 @@ const game = (function () {
     return combo.every(index => gameBoard.symbolAt(index) === currentPlayer.symbol)
   }
 
-  const switchTurn = () => (currentPlayer === player1 ? player2 : player1);
+  const switchTurn = () => currentPlayer === player1 ? player2 : player1;
+
+  return { handleMove };
 })();
